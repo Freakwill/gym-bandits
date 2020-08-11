@@ -31,7 +31,7 @@ class BanditEnv(gym.Env):
 
         self.n_bandits = len(p_dist)
         self.action_space = spaces.Discrete(self.n_bandits)
-        self.observation_space = spaces.Discrete(1)
+        self.observation_space = spaces.Discrete(1)   # unused
 
         self._seed()
 
@@ -41,7 +41,7 @@ class BanditEnv(gym.Env):
 
     def step(self, action):
         """
-        reward only depends on action.
+        reward only depends on actions.
         Z ~ U[0,1]
         r = r(a), if Z < p(a)
         or
