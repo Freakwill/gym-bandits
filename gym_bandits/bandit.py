@@ -41,7 +41,8 @@ class BanditEnv(gym.Env):
 
     def step(self, action):
         """
-        reward only depends on actions.
+        The rewards only depend on actions, means r(s, a)=f(a).
+        
         Z ~ U[0,1]
         r = r(a), if Z < p(a)
         or
