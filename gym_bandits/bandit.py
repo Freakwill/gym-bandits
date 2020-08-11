@@ -23,7 +23,7 @@ class BanditEnv(gym.Env):
             raise ValueError("All probabilities must be between 0 and 1")
 
         for reward in r_dist:
-            if isinstance(reward, list) and reward[1] <= 0:
+            if isinstance(reward, (list, np.ndarray)) and reward[1] <= 0:
                 raise ValueError("Standard deviation in rewards must all be greater than 0")
 
         self.p_dist = p_dist
@@ -40,16 +40,24 @@ class BanditEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        """
+        reward only depends on action.
+        Z ~ U[0,1]
+        r = r(a), if Z < p(a)
+        or
+        r ~ F(a), if Z < p(a)
+        """
         assert self.action_space.contains(action)
 
         reward = 0
         done = True
 
         if np.random.uniform() < self.p_dist[action]:
-            if not isinstance(self.r_dist[action], list):
-                reward = self.r_dist[action]
-            else:
+            if isinstance(self.r_dist[action], (list, np.ndarray)):
                 reward = np.random.normal(self.r_dist[action][0], self.r_dist[action][1])
+            else:
+                reward = self.r_dist[action]
+                
 
         return 0, reward, done, {}
 
@@ -118,10 +126,6 @@ class BanditTenArmedGaussian(BanditEnv):
     Actual reward is drawn from a normal distribution (q*(a), 1)
     """
     def __init__(self, bandits=10):
-        p_dist = np.full(bandits, 1)
-        r_dist = []
-
-        for _ in range(bandits):
-            r_dist.append([np.random.normal(0, 1), 1])
-
+        p_dist = np.ones(10)
+        r_dist = np.column_stack((np.random.normal(0,1,size=10), np.ones(10)))
         BanditEnv.__init__(self, p_dist=p_dist, r_dist=r_dist)
